@@ -124,31 +124,28 @@ async function verificar() {
   el.innerHTML = renderLoading();
   document.getElementById("btn-verificar").disabled = true;
 
-  try {
-    const resp = await fetch(`${API_BASE}/${encodeURIComponent(raw)}`, {
-      headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(8000),
+  // === MOCK — remover quando API estiver no ar ===
+  await new Promise(r => setTimeout(r, 900)); // simula latência
+  const SERIAL_VALIDO = "BR26-000137-EC8B";
+  if (raw === SERIAL_VALIDO) {
+    el.innerHTML = renderAutentico({
+      status: "ativo",
+      serial: "BR26-000137-EC8B",
+      produto: "Camisa Loopi no Mundial",
+      edicao: "Mundial 2026",
+      tamanho: "G",
+      embaixadorNome: "Edílson Capetinha",
+      embaixadorDistincao: "Campeão Mundial 2002",
+      detentorPrimeiroNome: "João",
+      dataAutenticacao: "2026-06-14",
+      emissao: "2026-06-14",
     });
-
-    if (resp.status === 404) {
-      el.innerHTML = renderErro("Certificado não encontrado",
-        "Este número de série não existe na nossa base. Confira se digitou corretamente, incluindo o traço e os quatro caracteres finais.");
-      return;
-    }
-    if (resp.status === 429) {
-      el.innerHTML = renderErro("Muitas tentativas", "Aguarde alguns instantes e tente novamente.");
-      return;
-    }
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-
-    const data = await resp.json();
-    el.innerHTML = data.status === "ativo" ? renderAutentico(data) : renderRevogado(data);
-  } catch {
-    el.innerHTML = renderErro("Erro de conexão",
-      "Não foi possível contactar o servidor de verificação. Tente novamente em instantes.");
-  } finally {
-    document.getElementById("btn-verificar").disabled = false;
+  } else {
+    el.innerHTML = renderErro("Certificado não encontrado",
+      "Este número de série não existe na nossa base. Confira se digitou corretamente, incluindo o traço e os quatro caracteres finais.");
   }
+  document.getElementById("btn-verificar").disabled = false;
+  // === FIM MOCK ===
 }
 
 // =======================================================================
