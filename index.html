@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verificar Autenticidade — Loopi Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F9F8F3;--card:#fff;--ink:#1a1c18;--muted:#6b7068;--line:#e8e5da;--verde:#0e5c2f;--verde2:#15743c;--amarelo:#d89c00;--loopi:#FF6200;--ok-bg:#eaf3de;--ok-brd:#3B6D11;--ok-txt:#173404;--err-bg:#fcebeb;--err-brd:#A32D2D;--err-txt:#501313;--warn-bg:#faeeda;--warn-brd:#854F0B;--warn-txt:#412402;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
+header{border-bottom:1px solid var(--line);padding:18px 24px;display:flex;align-items:center;gap:14px;background:#fff;}
+header svg{height:22px;width:auto;}
+header .sep{width:1px;height:22px;background:var(--line);}
+header span{font-size:12px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;}
+.hero{text-align:center;padding:56px 24px 40px;}
+.hero .eyebrow{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--amarelo);font-weight:700;margin-bottom:14px;}
+.hero h1{font-family:'Anton';font-size:clamp(32px,6vw,52px);color:var(--verde);line-height:.95;text-transform:uppercase;}
+.hero p{margin-top:16px;color:var(--muted);font-size:15px;line-height:1.6;max-width:400px;margin-inline:auto;}
+.form-wrap{max-width:520px;margin:0 auto 40px;padding:0 24px;}
+.input-row{display:flex;gap:10px;}
+.input-row input{flex:1;padding:14px 16px;border:1.5px solid var(--line);border-radius:10px;font-family:'JetBrains Mono';font-size:15px;background:var(--card);color:var(--ink);outline:none;transition:border-color .15s;text-transform:uppercase;letter-spacing:.06em;}
+.input-row input::placeholder{color:var(--muted);letter-spacing:.04em;font-family:'Inter';font-size:14px;}
+.input-row input:focus{border-color:var(--loopi);}
+.input-row button{padding:14px 22px;background:var(--loopi);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;transition:opacity .15s;white-space:nowrap;}
+.input-row button:hover{opacity:.88;}
+.input-row button:disabled{opacity:.5;cursor:default;}
+.hint{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
+#resultado{max-width:520px;margin:0 auto 60px;padding:0 24px;}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;overflow:hidden;}
+.status-bar{display:flex;align-items:center;gap:12px;padding:18px 22px;font-weight:700;font-size:16px;}
+.status-bar .icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:18px;flex:none;}
+.status-ok .status-bar{background:var(--ok-bg);color:var(--ok-txt);border-bottom:1px solid var(--ok-brd);}
+.status-ok .status-bar .icon{background:var(--ok-brd);color:#fff;}
+.status-err .status-bar{background:var(--err-bg);color:var(--err-txt);border-bottom:1px solid var(--err-brd);}
+.status-err .status-bar .icon{background:var(--err-brd);color:#fff;}
+.status-rev .status-bar{background:var(--warn-bg);color:var(--warn-txt);border-bottom:1px solid var(--warn-brd);}
+.status-rev .status-bar .icon{background:var(--warn-brd);color:#fff;}
+.fields{padding:22px;display:grid;grid-template-columns:1fr 1fr;gap:20px 18px;}
+.field .k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.field .v{font-size:14px;font-weight:600;color:var(--ink);}
+.field .v.serial{font-family:'JetBrains Mono';color:var(--loopi);font-size:16px;}
+.field .v.idolo{color:var(--verde2);}
+.tech-row{border-top:1px solid var(--line);padding:14px 22px;display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono';font-size:11px;color:var(--muted);flex-wrap:wrap;}
+.tech-row .badge{background:var(--ok-bg);color:var(--ok-txt);border:1px solid var(--ok-brd);border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
+.error-body{padding:24px 22px;color:var(--err-txt);font-size:14px;line-height:1.6;}
+.error-body a{color:var(--loopi);}
+.warn-body{padding:24px 22px;color:var(--warn-txt);font-size:14px;line-height:1.6;}
+.warn-body a{color:var(--loopi);}
+.spinner{width:22px;height:22px;flex:none;border:2.5px solid var(--line);border-top-color:var(--loopi);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-row{display:flex;align-items:center;gap:12px;padding:24px 22px;color:var(--muted);font-size:14px;}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);line-height:1.7;}
+footer a{color:var(--loopi);text-decoration:none;}
+@media(max-width:480px){.fields{grid-template-columns:1fr;}.input-row{flex-direction:column;}}
+</style>
+</head>
+<body>
+<header>
+  <svg viewBox="0 0 1080 431" xmlns="http://www.w3.org/2000/svg"><path d="M66.2204 181.977V33.2912C66.2204 14.9237 51.4134 0 33.0873 0C14.807 0 0 14.8777 0 33.2912V182.023C0 319.045 110.55 430.169 246.967 430.169C265.247 430.169 280.1 415.291 280.1 396.877C280.1 378.51 265.293 363.586 246.967 363.586C147.156 363.586 66.2204 282.264 66.2204 181.977Z" fill="#FF6200"/><path d="M885.997 39.4433C873.201 33.933 859.125 30.9023 844.364 30.9023H739.709C720.789 30.9023 705.434 46.3311 705.434 65.3416V271.104C705.434 289.472 720.241 304.35 738.567 304.35C747.707 304.35 755.979 300.63 761.965 294.615C767.952 288.554 771.654 280.288 771.654 271.104V243.507H844.318C859.08 243.507 873.155 240.476 885.952 234.966C923.655 218.711 950.115 181.057 950.115 137.205C950.115 93.3521 923.7 55.7445 885.952 39.4433H885.997ZM844.364 177.751H771.7V96.6583H843.221C864.929 96.6583 883.621 113.419 884.672 135.23C885.769 158.511 867.306 177.751 844.364 177.751Z" fill="#FF6200"/><path d="M1074.93 130.869C1074.93 111.95 1059.67 96.6133 1040.86 96.6133C1022.04 96.6133 1006.79 111.95 1006.79 130.869V271.197C1006.79 290.116 1022.04 305.453 1040.86 305.453C1059.67 305.453 1074.93 290.116 1074.93 271.197V130.869Z" fill="#FF6200"/><path d="M1040.88 78.6132C1062.48 78.6132 1080 61.0151 1080 39.3066C1080 17.5982 1062.48 0 1040.88 0C1019.27 0 1001.76 17.5982 1001.76 39.3066C1001.76 61.0151 1019.27 78.6132 1040.88 78.6132Z" fill="#FF6200"/><path d="M599.694 40.8835C594.526 37.5514 589.084 34.6757 583.322 32.2565C583.322 32.2565 583.276 32.2565 583.23 32.2565C570.699 27.0073 556.887 24.0859 542.435 24.0859C515.955 24.0859 491.761 33.7628 473.193 49.7844C471.592 51.1994 469.992 52.6601 468.482 54.1208L468.345 54.2577C468.345 54.2577 468.162 54.4403 468.025 54.5772L463.131 59.7352L377.242 150.25L326.66 203.519L317.239 213.424L316.69 213.972C304.204 226.981 288.06 234.33 271.367 235.882C251.335 237.753 230.663 231.317 214.931 216.437C189.457 192.336 185.432 154.039 203.634 125.556C206.104 121.722 208.939 118.07 212.187 114.647C234.276 91.4132 268.166 86.1183 295.652 99.2186C298.122 100.405 300.545 101.729 302.878 103.19L303.198 103.372C303.198 103.372 341.752 128.51 345.134 130.168C348.515 131.825 369.681 137.626 383.765 121.051C398.943 103.19 392.145 82.9281 385.448 77.1268C378.751 71.3254 345.777 49.7388 345.777 49.7388L342.255 47.5021L341.752 47.1826L337.27 44.3526L336.538 43.8961C295.195 19.1562 244.018 17.6956 201.576 38.9664C187.398 46.0415 174.227 55.6727 162.702 67.8144C156.391 74.4787 150.811 81.5994 146.1 89.0397C110.748 144.499 118.477 218.947 168.099 265.825C182.048 279.017 198.055 288.831 214.976 295.175C221.242 297.549 227.691 299.466 234.185 300.881H234.231C278.364 310.649 326.202 298.873 360.961 266.008L512.982 106.202L513.165 106.02C514.4 104.422 515.863 102.87 517.418 101.547H517.51C523.638 96.0691 531.504 92.6457 540.194 92.1436C540.971 92.0979 541.703 92.0523 542.481 92.0523C545.133 92.0523 547.74 92.3261 550.256 92.8739C562.741 95.4757 572.94 104.194 577.513 115.788C579.251 120.124 580.166 124.78 580.166 129.71C580.166 150.524 563.29 167.368 542.481 167.368C541.429 167.368 540.331 167.322 539.279 167.231C533.7 166.774 528.44 165.085 523.867 162.483C522.815 161.89 522.025 161.562 521.065 160.832C521.065 160.832 518.255 159.022 515.205 157.517C512.154 156.012 493.487 151.715 478.371 169.119C462.836 183.208 470.836 203.928 474.185 208.9C477.533 213.873 484.672 218.217 484.672 218.217L487.462 219.997H487.554C494.551 224.333 502.143 227.757 510.101 230.313C520.299 233.599 531.139 235.334 542.481 235.334C566.217 235.334 588.124 227.528 605.777 214.383C624.254 200.598 638.066 180.97 644.423 158.193C646.984 149.155 648.31 139.569 648.31 129.71C648.31 92.4631 628.964 59.6439 599.74 40.8379L599.694 40.8835Z" fill="#FF6200"/></svg>
+  <div class="sep"></div>
+  <span>Verificação de Autenticidade</span>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">Certificado de Autenticidade</div>
+    <h1>Camisa Loopi<br>no Mundial</h1>
+    <p>Digite o número de série do seu certificado para confirmar a autenticidade da peça.</p>
+  </section>
+
+  <div class="form-wrap">
+    <div class="input-row">
+      <input id="input-serial" type="text" placeholder="BR26-000137-EC8B"
+        maxlength="18" autocomplete="off" spellcheck="false"
+        aria-label="Número de série do certificado">
+      <button id="btn-verificar" onclick="verificar()">Verificar</button>
+    </div>
+    <p class="hint">Encontrado no rodapé do certificado · ex: BR26-000137-EC8B</p>
+  </div>
+
+  <div id="resultado"></div>
+</main>
+
+<footer>
+  <p>Serviço operado pela <strong>Loopi Club</strong>.<br>
+  Dúvidas? <a href="mailto:contato@loopiclub.com">contato@loopiclub.com</a> &nbsp;·&nbsp;
+  <a href="https://loopiclub.com">loopiclub.com</a></p>
+</footer>
+
+<script>
+// =======================================================================
+// CONFIGURAÇÃO — trocar pela URL real da API em produção
+// =======================================================================
+const API_BASE = "https://api.loopiclub.com/api/certificados";
+
+// Serial da URL amigável: verificar.loopiclub.com/BR26-000137-EC8B
+function serialDaURL() {
+  const path = location.pathname.replace(/^\//, "").trim();
+  return /^BR\d{2}-\d{6}-[0-9A-F]{4}$/i.test(path) ? path.toUpperCase() : null;
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const s = serialDaURL() || new URLSearchParams(location.search).get("s");
+  if (s) { document.getElementById("input-serial").value = s; verificar(); }
+  document.getElementById("input-serial").addEventListener("keydown", e => {
+    if (e.key === "Enter") verificar();
+  });
+});
+
+async function verificar() {
+  const raw = document.getElementById("input-serial").value.trim().toUpperCase();
+  const el  = document.getElementById("resultado");
+  if (!raw) { el.innerHTML = ""; return; }
+
+  if (!/^BR\d{2}-\d{6}-[0-9A-F]{4}$/.test(raw)) {
+    el.innerHTML = renderErro("Formato inválido",
+      "O número de série deve seguir o padrão BR26-000000-XXXX. Verifique o rodapé do certificado.");
+    return;
+  }
+
+  el.innerHTML = renderLoading();
+  document.getElementById("btn-verificar").disabled = true;
+
+  try {
+    const resp = await fetch(`${API_BASE}/${encodeURIComponent(raw)}`, {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(8000),
+    });
+
+    if (resp.status === 404) {
+      el.innerHTML = renderErro("Certificado não encontrado",
+        "Este número de série não existe na nossa base. Confira se digitou corretamente, incluindo o traço e os quatro caracteres finais.");
+      return;
+    }
+    if (resp.status === 429) {
+      el.innerHTML = renderErro("Muitas tentativas", "Aguarde alguns instantes e tente novamente.");
+      return;
+    }
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+    const data = await resp.json();
+    el.innerHTML = data.status === "ativo" ? renderAutentico(data) : renderRevogado(data);
+  } catch {
+    el.innerHTML = renderErro("Erro de conexão",
+      "Não foi possível contactar o servidor de verificação. Tente novamente em instantes.");
+  } finally {
+    document.getElementById("btn-verificar").disabled = false;
+  }
+}
+
+// =======================================================================
+// Contrato JSON esperado da API:
+//   status, serial, produto, edicao, tamanho,
+//   embaixadorNome, embaixadorDistincao,
+//   detentorPrimeiroNome  ← NUNCA nome completo nem CPF
+//   dataAutenticacao (YYYY-MM-DD), emissao (YYYY-MM-DD)
+// =======================================================================
+function renderAutentico(d) {
+  return `<div class="card status-ok">
+    <div class="status-bar"><span class="icon">✓</span><span>Certificado autêntico · Loopi Verified</span></div>
+    <div class="fields">
+      <div class="field"><div class="k">Número de série</div><div class="v serial">${esc(d.serial)}</div></div>
+      <div class="field"><div class="k">Autografada à mão por</div><div class="v idolo">${esc(d.embaixadorNome)}</div></div>
+      <div class="field"><div class="k">Distinção</div><div class="v">${esc(d.embaixadorDistincao)}</div></div>
+      <div class="field"><div class="k">Edição</div><div class="v">${esc(d.edicao)}</div></div>
+      <div class="field"><div class="k">Tamanho</div><div class="v">${esc(d.tamanho)}</div></div>
+      <div class="field"><div class="k">Detentor</div><div class="v">${esc(d.detentorPrimeiroNome)}</div></div>
+      <div class="field"><div class="k">Autenticado em</div><div class="v">${fmtData(d.dataAutenticacao)}</div></div>
+      <div class="field"><div class="k">Certificado emitido</div><div class="v">${fmtData(d.emissao)}</div></div>
+    </div>
+    <div class="tech-row">
+      <span class="badge">HMAC-SHA256</span>
+      <span>Verificado em ${new Date().toLocaleString("pt-BR")}</span>
+    </div>
+  </div>`;
+}
+
+function renderRevogado() {
+  return `<div class="card status-rev">
+    <div class="status-bar"><span class="icon">!</span><span>Certificado revogado</span></div>
+    <div class="warn-body">Este certificado foi revogado pela Loopi Club e não está mais válido.
+    Dúvidas? <a href="mailto:contato@loopiclub.com">contato@loopiclub.com</a></div>
+  </div>`;
+}
+
+function renderErro(titulo, msg) {
+  return `<div class="card status-err">
+    <div class="status-bar"><span class="icon">✕</span><span>${esc(titulo)}</span></div>
+    <div class="error-body">${esc(msg)}</div>
+  </div>`;
+}
+
+function renderLoading() {
+  return `<div class="card"><div class="loading-row">
+    <div class="spinner"></div><span>Verificando autenticidade…</span>
+  </div></div>`;
+}
+
+function esc(s) {
+  return String(s ?? "—").replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function fmtData(iso) {
+  if (!iso) return "—";
+  const [y,m,d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+</script>
+</body>
+</html>
